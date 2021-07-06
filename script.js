@@ -19,6 +19,7 @@ var gl;
 var baseDir;
 var shaderDir;
 
+
 var modelTexture = Array(); //array contenente i path alle textures
 modelTexture[0] = 'assetshowcase/pedestal.png';
 modelTexture[1] = 'assetshowcase/Boat/textures/boat_ao.bmp';
@@ -63,20 +64,23 @@ var rvx = 0.0;
 var rvy = 0.0;
 var rvz = 0.0;
 
-//################## PEDESTAL POSITION
-var Px = 0.0
-var Py = 0.0
-var Pz = -10.0
-var Rx = 0.0;
-var Ry = 0.0;
-var Rz = 0.0;
-var S  = 0.004;
-var objectWorldMatrix = utils.MakeWorld(Px,Py,Pz, Rx, Ry, Rz, S); 
+//################## BOAT TRANSFORM
+var boatTx = 0.0
+var boatTy = 0.0
+var boatTz = -10.0
+var boatRx = 0.0;
+var boatRy = 0.0;
+var boatRz = 0.0;
+var boatS  = 0.004;
+var objectWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
 
 
+//################## ANIMATION VARS
+var lastUpdateTime = (new Date).getTime();
+var flag = 0;
 
 var camera = [cx, cy, cz];
-var target = [Rx, Ry, Rz];
+//var target = [Rx, Ry, Rz];
 var upVector = [0.0, 1.0, 0.0];
 
 
@@ -127,21 +131,55 @@ function main(){
   
   gl.useProgram(programs[0]);
  
-  perspectiveMatrix = utils.MakePerspective(fovDeg, gl.canvas.width/gl.canvas.height, zNear, zFar);
-  viewMatrix = utils.MakeView(cx, cy, cz,0.0,0.0);
+  
+  drawScene();
   
   
-  var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, objectWorldMatrix);
-  var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
-  gl.uniformMatrix4fv(matrixLocation[0], gl.FALSE, utils.transposeMatrix(projectionMatrix));
+  function animate() {
+    var currentTime = (new Date).getTime();
+
+    let slower = 7;
+    let wibblywobbly = 3;
+    if (lastUpdateTime) {
+      var deltaC = (10 * (currentTime - lastUpdateTime)) / 1000.0;
+      
+      boatRy -= deltaC;
+
+      if (flag == 0) {
+        boatRx += deltaC / slower;
+        boatRz += deltaC / slower;
+      }
+      else {
+        boatRx -= deltaC / slower;
+        boatRz -= deltaC / slower;
+      }
+
+      if (boatRz >= wibblywobbly) flag = 1;
+      else if (boatRz <= -wibblywobbly) flag = 0;
+      
+      console.log(boatRz);
+    }
+    objectWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
+    lastUpdateTime = currentTime;
+  }
   
-  
-  gl.bindVertexArray(vaos[0]);
-  gl.drawElements(gl.TRIANGLES, objectIndices[0].length, gl.UNSIGNED_SHORT, 0);
-  
-  
-  
-   
+  function drawScene() {
+    animate();
+    
+    gl.bindVertexArray(vaos[0]);
+    
+    perspectiveMatrix = utils.MakePerspective(fovDeg, gl.canvas.width/gl.canvas.height, zNear, zFar);
+    viewMatrix = utils.MakeView(cx, cy, cz, 0.0, 0.0);
+    
+    
+    var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, objectWorldMatrix);
+    var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
+    
+    gl.uniformMatrix4fv(matrixLocation[0], gl.FALSE, utils.transposeMatrix(projectionMatrix));
+
+    gl.drawElements(gl.TRIANGLES, objectIndices[0].length, gl.UNSIGNED_SHORT, 0);
+    window.requestAnimationFrame(drawScene);
+   }
   
 }
 

@@ -618,8 +618,8 @@ createProgram:function(gl, vertexShader, fragmentShader) {
 	MakeWorld: function(tx, ty, tz, rx, ry, rz, s){
 	//Creates a world matrix for an object.
 
-		var Rx = this.MakeRotateXMatrix(ry);
-		var Ry = this.MakeRotateYMatrix(rx);
+		var Ry = this.MakeRotateYMatrix(ry);
+		var Rx = this.MakeRotateXMatrix(rx);
 		var Rz = this.MakeRotateZMatrix(rz);
 		var S  = this.MakeScaleMatrix(s);
 		var T =  this.MakeTranslateMatrix(tx, ty, tz);
