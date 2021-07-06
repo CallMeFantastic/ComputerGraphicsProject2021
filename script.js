@@ -1,6 +1,8 @@
 var programs = new Array();
 var canvas;
 var gl;
+var baseDir;
+var shaderDir;
 
 var modelTexture = Array(); //array contenente i path alle textures
 modelTexture[0] = 'assetshowcase/pedestal.png';
@@ -47,7 +49,7 @@ var rvz = 0.0;
 //################## PEDESTAL POSITION
 var Px = 0.0
 var Py = 0.0
-var Pz = 0.0
+var Pz = -10.0
 var Rx = 0.0;
 var Ry = 0.0;
 var Rz = 0.0;
@@ -99,6 +101,10 @@ function main(){
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectVertices[0]),gl.STATIC_DRAW);
   gl.enableVertexAttribArray(positionAttributeLocation);
   gl.vertexAttribPointer(positionAttributeLocation[0], 3, gl.FLOAT, false, 0, 0);
+
+  var indexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objectIndices[0]), gl.STATIC_DRAW);
   
   gl.useProgram(programs[0]);
  
@@ -112,7 +118,7 @@ function main(){
   
   
   gl.bindVertexArray(vaos[0]);
-  gl.drawElements(gl.TRIANGLES,indexData.length,gl.UNSIGNED_SHORT,0); 
+  gl.drawElements(gl.TRIANGLES, objectIndices[0].length, gl.UNSIGNED_SHORT, 0); 
   
 }
 
