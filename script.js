@@ -1,3 +1,18 @@
+var fs = `#version 300 es
+precision mediump float;
+out vec4 outColor;
+void main() {
+outColor = vec4(1.0,0.0,0.0,1.0);
+}`
+var vs = `#version 300 es
+in vec3 a_position;
+
+uniform mat4 matrix;
+
+void main(){
+
+gl_Position = matrix * vec4(a_position,1.0);
+}` 
 var programs = new Array();
 var canvas;
 var gl;
@@ -13,10 +28,12 @@ modelTexture[4] = 'assetshowcase/Boat/textures/boat_normal.bmp';
 modelTexture[5] = 'assetshowcase/Boat/textures/boat_specular.bmp'; //verifica sui suoi esempi
 
 var modelStr = new Array(); //array contenente i path agli obj
-modelStr[0] = 'assetshowcase/Boat/boat.obj';
+modelStr[0] = 'assetshowcase/Boat/Boat.obj';
 modelStr[1] = 'assetshowcase/pedestal.obj';
 
 var perspectiveMatrix;
+
+var boatModel;
 
 //CAMERA COORDS
 var cx = 0.0;
@@ -53,7 +70,7 @@ var Pz = -10.0
 var Rx = 0.0;
 var Ry = 0.0;
 var Rz = 0.0;
-var S  = 1;
+var S  = 0.004;
 var objectWorldMatrix = utils.MakeWorld(Px,Py,Pz, Rx, Ry, Rz, S); 
 
 
@@ -64,9 +81,18 @@ var upVector = [0.0, 1.0, 0.0];
 
 
 function main(){
+
+  //set globalstates-> VBO & VAO -> function animate -> function drawScene();
   canw=canvas.clientWidth;
   canh=canvas.clientHeight;
   aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+  
+  //SET Global states (viewport size, viewport background color, Depth test)
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  //check what it does viewport --
+  gl.clearColor(0.85, 0.85, 0.85, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST);
   
   var objectVertices = Array();
   var objectNormals = Array();
@@ -77,18 +103,11 @@ function main(){
   
   var positionAttributeLocation = new Array();
   var matrixLocation = new Array();
-  
-  objectVertices[0] = pedestalModel.vertices;
-  objectNormals[0] = pedestalModel.vertexNormals;
-  objectIndices[0] = pedestalModel.indices;
-  objectTexCoords[0] = pedestalModel.textures;
-  
-  //SET Global states (viewport size, viewport background color, Depth test)
-  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-  //check what it does viewport --
-  gl.clearColor(0.85, 0.85, 0.85, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  gl.enable(gl.DEPTH_TEST);
+  //TODO: cambia asset 
+  objectVertices[0] = boatModel.vertices;
+  objectNormals[0] = boatModel.vertexNormals;
+  objectIndices[0] = boatModel.indices;
+  objectTexCoords[0] = boatModel.textures;
   
   //creare buffer, dire il tipo, feedarlo, (a_position fatta) 
   //moltiplicazione di matrici, creazione buffer uniform, inserire dati , GetUniformLocation (matrix) 
@@ -118,14 +137,13 @@ function main(){
   
   
   gl.bindVertexArray(vaos[0]);
-  gl.drawElements(gl.TRIANGLES, objectIndices[0].length, gl.UNSIGNED_SHORT, 0); 
+  gl.drawElements(gl.TRIANGLES, objectIndices[0].length, gl.UNSIGNED_SHORT, 0);
+  
+  
+  
+   
   
 }
-
-
-
-
-
 
 
 
@@ -137,6 +155,7 @@ async function init() {
   baseDir = window.location.href.replace(page, '');
   shaderDir = baseDir + "shaders/";
 
+
   canvas = document.getElementById("my-canvas");
 
   gl = canvas.getContext("webgl2");
@@ -144,14 +163,27 @@ async function init() {
     document.write("GL context not opened");
     return;
   }
+  
   utils.resizeCanvasToDisplaySize(gl.canvas);
+  var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+  gl.shaderSource(vertexShader, vs);
+  gl.compileShader(vertexShader);
+  var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(fragmentShader, fs);
+  gl.compileShader(fragmentShader);
+  programs[0] = gl.createProgram();
+  gl.attachShader(programs[0], vertexShader);
+  gl.attachShader(programs[0], fragmentShader);
+  gl.linkProgram(programs[0]);
+  /*
+  
 // TODO: fai una funzione per la creazione degli shader
   await utils.loadFiles([shaderDir + 'vs.glsl', shaderDir + 'fs.glsl'], function (shaderText) {
     var vertexShader = utils.createShader(gl, gl.VERTEX_SHADER, shaderText[0]);
     var fragmentShader = utils.createShader(gl, gl.FRAGMENT_SHADER, shaderText[1]);
     programs[0] = utils.createProgram(gl, vertexShader, fragmentShader);  //setting program
 
-  });
+  });*/
 
 /* repeat for each vs and fs program*/
 /*
@@ -164,7 +196,7 @@ async function init() {
  
  //########################################################## LOAD OBJECT FILES (INSIDE ASYNC FUNCTION)
  var objStr = await utils.get_objstr(modelStr[0]);
- var pedestalModel = new OBJ.Mesh(objStr);
+ boatModel = new OBJ.Mesh(objStr);
  
  main();
  }
