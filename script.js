@@ -34,7 +34,7 @@ modelStr[1] = 'assetshowcase/pedestal.obj';
 
 var perspectiveMatrix;
 
-var boatModel;
+
 
 //CAMERA COORDS
 var cx = 0.0;
@@ -65,6 +65,8 @@ var rvy = 0.0;
 var rvz = 0.0;
 
 //################## BOAT TRANSFORM
+var boatModel;
+
 var boatTx = 0.0
 var boatTy = 0.0
 var boatTz = -10.0
@@ -107,6 +109,9 @@ function main(){
   
   var positionAttributeLocation = new Array();
   var matrixLocation = new Array();
+  var texLocation = new Array();
+
+
   //TODO: cambia asset 
   objectVertices[0] = boatModel.vertices;
   objectNormals[0] = boatModel.vertexNormals;
@@ -117,6 +122,8 @@ function main(){
   //moltiplicazione di matrici, creazione buffer uniform, inserire dati , GetUniformLocation (matrix) 
   positionAttributeLocation[0] = gl.getAttribLocation(programs[0], "a_position");
   matrixLocation[0] = gl.getUniformLocation(programs[0],"matrix");
+  texLocation[0] = gl.getUniformLocation(programs[0], "a_texture");
+
   
   gl.bindVertexArray(vaos[0]);
   var positionBuffer = gl.createBuffer();
