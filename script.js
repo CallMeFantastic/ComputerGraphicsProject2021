@@ -19,6 +19,8 @@ var gl;
 var baseDir;
 var shaderDir;
 
+//temp !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//var vertexShader
 
 var modelTexture = Array(); //array contenente i path alle textures
 modelTexture[0] = 'assetshowcase/pedestal.png';
@@ -164,7 +166,7 @@ function main(){
       if (boatRz >= wibblywobbly) flag = 1;
       else if (boatRz <= -wibblywobbly) flag = 0;
       
-      console.log(boatRz);
+      //console.log(boatRz);
     }
     objectWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
     lastUpdateTime = currentTime;
@@ -210,6 +212,9 @@ async function init() {
   }
   
   utils.resizeCanvasToDisplaySize(gl.canvas);
+
+/*
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! REMOVE ONCE LOADFILES() IS PATCHED
   var vertexShader = gl.createShader(gl.VERTEX_SHADER);
   gl.shaderSource(vertexShader, vs);
   gl.compileShader(vertexShader);
@@ -220,15 +225,16 @@ async function init() {
   gl.attachShader(programs[0], vertexShader);
   gl.attachShader(programs[0], fragmentShader);
   gl.linkProgram(programs[0]);
-  /*
+  */
   
 // TODO: fai una funzione per la creazione degli shader
   await utils.loadFiles([shaderDir + 'vs.glsl', shaderDir + 'fs.glsl'], function (shaderText) {
     var vertexShader = utils.createShader(gl, gl.VERTEX_SHADER, shaderText[0]);
+    console.log("bip bop boop");
     var fragmentShader = utils.createShader(gl, gl.FRAGMENT_SHADER, shaderText[1]);
     programs[0] = utils.createProgram(gl, vertexShader, fragmentShader);  //setting program
 
-  });*/
+  });
 
 /* repeat for each vs and fs program*/
 /*
