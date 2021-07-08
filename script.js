@@ -67,15 +67,15 @@ var rvy = 0.0;
 var rvz = 0.0;
 
 //########### LIGHTS
-var alpha = 190;
-var beta = 70;
+var alpha = 0;
+var beta = 45;
 var dirLightAlpha = -utils.degToRad(alpha);
 var dirLightBeta  = -utils.degToRad(beta);
 var directionalLight = [Math.cos(dirLightAlpha) * Math.cos(dirLightBeta),
               Math.sin(dirLightAlpha),
               Math.cos(dirLightAlpha) * Math.sin(dirLightBeta)
               ];
-var directionalLightColor = [0.1, 1.0, 1.0];       
+var directionalLightColor = [1.0, 1.0, 1.0];       
 
 
 //################## BOAT TRANSFORM
@@ -88,7 +88,7 @@ var boatRx = 0.0;
 var boatRy = 0.0;
 var boatRz = 0.0;
 var boatS  = 0.004;
-var boatDiffuse = [0.5, 0.5, 0.5 ];
+var boatDiffuse = [0.69, 0.0, 1.0];
 var objectWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
 
 
