@@ -1,4 +1,4 @@
-var fs = `#version 300 es
+/*var fs = `#version 300 es
 precision mediump float;
 out vec4 outColor;
 void main() {
@@ -12,7 +12,7 @@ uniform mat4 matrix;
 void main(){
 
 gl_Position = matrix * vec4(a_position,1.0);
-}` 
+}` */
 var programs = new Array();
 var canvas;
 var gl;
@@ -66,6 +66,18 @@ var rvx = 0.0;
 var rvy = 0.0;
 var rvz = 0.0;
 
+//########### LIGHTS
+var alpha = 190;
+var beta = 70;
+var dirLightAlpha = -utils.degToRad(alpha);
+var dirLightBeta  = -utils.degToRad(beta);
+var directionalLight = [Math.cos(dirLightAlpha) * Math.cos(dirLightBeta),
+              Math.sin(dirLightAlpha),
+              Math.cos(dirLightAlpha) * Math.sin(dirLightBeta)
+              ];
+var directionalLightColor = [0.1, 1.0, 1.0];       
+
+
 //################## BOAT TRANSFORM
 var boatModel;
 
@@ -76,7 +88,9 @@ var boatRx = 0.0;
 var boatRy = 0.0;
 var boatRz = 0.0;
 var boatS  = 0.004;
+var boatDiffuse = [0.5, 0.5, 0.5 ];
 var objectWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
+
 
 
 //################## ANIMATION VARS
@@ -110,8 +124,16 @@ function main(){
   
   
   var positionAttributeLocation = new Array();
+  var normalAttributeLocation = new Array();
+  
+  var materialDiffColorLocation = new Array();
+  var lightDirectionLocation = new Array();
+  var lightColorLocation = new Array();
   var matrixLocation = new Array();
+  var normalMatrixLocation = new Array();
   var texLocation = new Array();
+  
+
 
 
   //TODO: cambia asset 
@@ -123,16 +145,33 @@ function main(){
   //creare buffer, dire il tipo, feedarlo, (a_position fatta) 
   //moltiplicazione di matrici, creazione buffer uniform, inserire dati , GetUniformLocation (matrix) 
   positionAttributeLocation[0] = gl.getAttribLocation(programs[0], "a_position");
-  matrixLocation[0] = gl.getUniformLocation(programs[0],"matrix");
-  texLocation[0] = gl.getUniformLocation(programs[0], "a_texture");
-
+  normalAttributeLocation[0] = gl.getAttribLocation(programs[0],"inNormal");
   
+  materialDiffColorLocation[0] = gl.getUniformLocation(programs[0], 'mDiffColor');
+  lightDirectionLocation[0] = gl.getUniformLocation(programs[0], 'lightDirection');
+  lightColorLocation[0] = gl.getUniformLocation(programs[0], 'lightColor');
+  matrixLocation[0] = gl.getUniformLocation(programs[0],"matrix");
+  normalMatrixLocation[0] = gl.getUniformLocation(programs[0],"nMatrix");
+  texLocation[0] = gl.getUniformLocation(programs[0], "a_texture");
+  
+  
+  
+
+  //PASSING POSITIONS INTO SHADERS a_position buffer
   gl.bindVertexArray(vaos[0]);
   var positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectVertices[0]),gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(positionAttributeLocation);
+  gl.enableVertexAttribArray(positionAttributeLocation[0]);
   gl.vertexAttribPointer(positionAttributeLocation[0], 3, gl.FLOAT, false, 0, 0);
+  
+  //PASSING NORMALS INTO SHADERS inNormal buffer
+  var normalBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectNormals[0]),gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(normalAttributeLocation[0]);
+  gl.vertexAttribPointer(normalAttributeLocation[0], 3, gl.FLOAT, false, 0, 0);
+
 
   var indexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
@@ -185,6 +224,12 @@ function main(){
     var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
     
     gl.uniformMatrix4fv(matrixLocation[0], gl.FALSE, utils.transposeMatrix(projectionMatrix));
+    gl.uniformMatrix4fv(normalMatrixLocation[0], gl.FALSE, utils.transposeMatrix(objectWorldMatrix));
+    
+    gl.uniform3fv(materialDiffColorLocation[0], boatDiffuse);
+    gl.uniform3fv(lightColorLocation[0],  directionalLightColor);
+    gl.uniform3fv(lightDirectionLocation[0],  directionalLight);
+    
 
     gl.drawElements(gl.TRIANGLES, objectIndices[0].length, gl.UNSIGNED_SHORT, 0);
     window.requestAnimationFrame(drawScene);
@@ -246,7 +291,7 @@ async function init() {
   });*/
  
  //########################################################## LOAD OBJECT FILES (INSIDE ASYNC FUNCTION)
- var objStr = await utils.get_objstr(modelStr[0]);
+ var objStr = await utils.get_objstr(baseDir + modelStr[0]);
  boatModel = new OBJ.Mesh(objStr);
  
  main();
