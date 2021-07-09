@@ -19,9 +19,6 @@ var gl;
 var baseDir;
 var shaderDir;
 
-//temp !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//var vertexShader
-
 var modelTexture = Array(); //array contenente i path alle textures
 modelTexture[0] = 'assetshowcase/pedestal.png';
 modelTexture[1] = 'assetshowcase/Boat/textures/boat_ao.bmp';
@@ -33,9 +30,7 @@ modelTexture[5] = 'assetshowcase/Boat/textures/boat_specular.bmp'; //verifica su
 var modelStr = new Array(); //array contenente i path agli obj
 modelStr[0] = 'assetshowcase/Boat/Boat.obj';
 modelStr[1] = 'assetshowcase/pedestal.obj';
-
-var perspectiveMatrix;
-
+var models3DCount = 2;
 
 
 //CAMERA COORDS
@@ -89,7 +84,20 @@ var boatRy = 0.0;
 var boatRz = 0.0;
 var boatS  = 0.004;
 var boatDiffuse = [0.69, 0.0, 1.0];
-var objectWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
+var boatWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
+
+//################## PEDESTAL TRANSFORM
+var pedestalModel;
+
+var pedestalTx = 0.0
+var pedestalTy = 0.0
+var pedestalTz = -10.0
+var pedestalRx = 0.0;
+var pedestalRy = 0.0;
+var pedestalRz = 0.0;
+var pedestalS  = 0.004;
+var pedestalDiffuse = [0.69, 0.0, 1.0];
+var pedestalWorldMatrix = utils.MakeWorld(pedestalTx, pedestalTy, pedestalTz, pedestalRx, pedestalRy, pedestalRz, pedestalS);
 
 
 
@@ -136,48 +144,85 @@ function main(){
 
 
 
-  //TODO: cambia asset 
+  //################## ATTTIBUTES
+  //####### BOAT
   objectVertices[0] = boatModel.vertices;
   objectNormals[0] = boatModel.vertexNormals;
   objectIndices[0] = boatModel.indices;
   objectTexCoords[0] = boatModel.textures;
+
+  //####### PEDESTAL
+  objectVertices[1] = pedestalModel.vertices;
+  objectNormals[1] = pedestalModel.vertexNormals;
+  objectIndices[1] = pedestalModel.indices;
+  objectTexCoords[1] = pedestalModel.textures;
+
+
+
   
   //creare buffer, dire il tipo, feedarlo, (a_position fatta) 
-  //moltiplicazione di matrici, creazione buffer uniform, inserire dati , GetUniformLocation (matrix) 
-  positionAttributeLocation[0] = gl.getAttribLocation(programs[0], "a_position");
-  normalAttributeLocation[0] = gl.getAttribLocation(programs[0],"inNormal");
+  //moltiplicazione di matrici, creazione buffer uniform, inserire dati , GetUniformLocation (matrix)
+  for(m = 0; m < models3DCount; m++) {
+    //for each program
+    positionAttributeLocation[m] = gl.getAttribLocation(programs[0], "a_position");
+    normalAttributeLocation[m] = gl.getAttribLocation(programs[0],"inNormal");
+    
+    materialDiffColorLocation[m] = gl.getUniformLocation(programs[0], 'mDiffColor');
+    lightDirectionLocation[m] = gl.getUniformLocation(programs[0], 'lightDirection');
+    lightColorLocation[m] = gl.getUniformLocation(programs[0], 'lightColor');
+    matrixLocation[m] = gl.getUniformLocation(programs[0],"matrix");
+    normalMatrixLocation[m] = gl.getUniformLocation(programs[0],"nMatrix");
+    texLocation[m] = gl.getUniformLocation(programs[0], "a_texture");
+    
+  }
   
-  materialDiffColorLocation[0] = gl.getUniformLocation(programs[0], 'mDiffColor');
-  lightDirectionLocation[0] = gl.getUniformLocation(programs[0], 'lightDirection');
-  lightColorLocation[0] = gl.getUniformLocation(programs[0], 'lightColor');
-  matrixLocation[0] = gl.getUniformLocation(programs[0],"matrix");
-  normalMatrixLocation[0] = gl.getUniformLocation(programs[0],"nMatrix");
-  texLocation[0] = gl.getUniformLocation(programs[0], "a_texture");
   
-  
-  
+  for(loc = 0; loc < positionAttributeLocation.length; loc++) {
+    //boat params locations in first half of Location arrays - object<Param>[0]
+    if(loc < positionAttributeLocation.length / 2){
+      gl.bindVertexArray(vaos[loc]);
+      var positionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.enableVertexAttribArray(positionAttributeLocation[loc]);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectVertices[0]),gl.STATIC_DRAW);
+      gl.vertexAttribPointer(positionAttributeLocation[loc], 3, gl.FLOAT, false, 0, 0);
+      
+      //PASSING NORMALS INTO SHADERS inNormal buffer
+      var normalBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectNormals[0]),gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(normalAttributeLocation[loc]);
+      gl.vertexAttribPointer(normalAttributeLocation[loc], 3, gl.FLOAT, false, 0, 0);
+      
+      
+      var indexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objectIndices[0]), gl.STATIC_DRAW);
+    }
+   
+    //pedestal params locations in second half of Location arrays - object<Param>[1]
+    else { 
+      gl.bindVertexArray(vaos[loc]);
+      var positionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.enableVertexAttribArray(positionAttributeLocation[loc]);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectVertices[1]),gl.STATIC_DRAW);
+      gl.vertexAttribPointer(positionAttributeLocation[loc], 3, gl.FLOAT, false, 0, 0);
+      
+      //PASSING NORMALS INTO SHADERS inNormal buffer
+      var normalBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectNormals[1]),gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(normalAttributeLocation[loc]);
+      gl.vertexAttribPointer(normalAttributeLocation[loc], 3, gl.FLOAT, false, 0, 0);
+      
+      
+      var indexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objectIndices[1]), gl.STATIC_DRAW);
+    }
+  }
 
-  //PASSING POSITIONS INTO SHADERS a_position buffer
-  gl.bindVertexArray(vaos[0]);
-  var positionBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectVertices[0]),gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(positionAttributeLocation[0]);
-  gl.vertexAttribPointer(positionAttributeLocation[0], 3, gl.FLOAT, false, 0, 0);
-  
-  //PASSING NORMALS INTO SHADERS inNormal buffer
-  var normalBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectNormals[0]),gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(normalAttributeLocation[0]);
-  gl.vertexAttribPointer(normalAttributeLocation[0], 3, gl.FLOAT, false, 0, 0);
-
-
-  var indexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objectIndices[0]), gl.STATIC_DRAW);
-  
-  gl.useProgram(programs[0]);
  
   
   drawScene();
@@ -207,31 +252,62 @@ function main(){
       
       //console.log(boatRz);
     }
-    objectWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
+    boatWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
     lastUpdateTime = currentTime;
   }
   
   function drawScene() {
     animate();
+     
+    gl.clearColor(0.85, 0.85, 0.85, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
-    gl.bindVertexArray(vaos[0]);
-    
-    perspectiveMatrix = utils.MakePerspective(fovDeg, gl.canvas.width/gl.canvas.height, zNear, zFar);
-    viewMatrix = utils.MakeView(cx, cy, cz, 0.0, 0.0);
-    
-    
-    var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, objectWorldMatrix);
-    var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
-    
-    gl.uniformMatrix4fv(matrixLocation[0], gl.FALSE, utils.transposeMatrix(projectionMatrix));
-    gl.uniformMatrix4fv(normalMatrixLocation[0], gl.FALSE, utils.transposeMatrix(objectWorldMatrix));
-    
-    gl.uniform3fv(materialDiffColorLocation[0], boatDiffuse);
-    gl.uniform3fv(lightColorLocation[0],  directionalLightColor);
-    gl.uniform3fv(lightDirectionLocation[0],  directionalLight);
-    
+    var perspectiveMatrix = utils.MakePerspective(fovDeg, gl.canvas.width/gl.canvas.height, zNear, zFar);
+    var viewMatrix = utils.MakeView(cx, cy, cz, 0.0, 0.0);
 
-    gl.drawElements(gl.TRIANGLES, objectIndices[0].length, gl.UNSIGNED_SHORT, 0);
+    for(loc = 0; loc < positionAttributeLocation.length; loc++) {
+      gl.useProgram(programs[0]);
+
+      if(loc < positionAttributeLocation.length / 2) {
+
+        gl.bindVertexArray(vaos[loc]);
+        
+        
+        var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, boatWorldMatrix);
+        var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
+        
+        gl.uniformMatrix4fv(matrixLocation[loc], gl.FALSE, utils.transposeMatrix(projectionMatrix));
+        gl.uniformMatrix4fv(normalMatrixLocation[loc], gl.FALSE, utils.transposeMatrix(boatWorldMatrix));
+        
+        gl.uniform3fv(materialDiffColorLocation[loc], boatDiffuse);
+        gl.uniform3fv(lightColorLocation[loc],  directionalLightColor);
+        gl.uniform3fv(lightDirectionLocation[loc],  directionalLight);
+        
+    
+        gl.drawElements(gl.TRIANGLES, objectIndices[0].length, gl.UNSIGNED_SHORT, 0);
+      }
+
+      else {
+
+        gl.bindVertexArray(vaos[loc]);
+        
+        
+        var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, pedestalWorldMatrix);
+        var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
+        
+        gl.uniformMatrix4fv(matrixLocation[loc], gl.FALSE, utils.transposeMatrix(projectionMatrix));
+        gl.uniformMatrix4fv(normalMatrixLocation[loc], gl.FALSE, utils.transposeMatrix(pedestalWorldMatrix));
+        
+        gl.uniform3fv(materialDiffColorLocation[loc], pedestalDiffuse);
+        gl.uniform3fv(lightColorLocation[loc],  directionalLightColor);
+        gl.uniform3fv(lightDirectionLocation[loc],  directionalLight);
+        
+    
+        gl.drawElements(gl.TRIANGLES, objectIndices[1].length, gl.UNSIGNED_SHORT, 0);
+      }
+
+    }
+    
     window.requestAnimationFrame(drawScene);
    }
   
@@ -291,8 +367,11 @@ async function init() {
   });*/
  
  //########################################################## LOAD OBJECT FILES (INSIDE ASYNC FUNCTION)
- var objStr = await utils.get_objstr(baseDir + modelStr[0]);
- boatModel = new OBJ.Mesh(objStr);
+ var boatObjStr = await utils.get_objstr(baseDir + modelStr[0]);
+ boatModel = new OBJ.Mesh(boatObjStr);
+
+ var pedestalObjStr = await utils.get_objstr(baseDir + modelStr[1]);
+ pedestalModel = new OBJ.Mesh(pedestalObjStr);
  
  main();
  }
