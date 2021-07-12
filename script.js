@@ -3,6 +3,7 @@ var canvas;
 var gl;
 var baseDir;
 var shaderDir;
+var diffType = 1;
 
 var modelTexture = Array(); //array contenente i path alle textures
 modelTexture[0] = 'assetshowcase/pedestal.png';
@@ -25,7 +26,7 @@ var cz = 2.0;
 var elevation = 0.0;
 var angle = 0.0;
 var w, h;
-var eyePos = [cx, cy, cz];
+var cameraPos = [cx, cy, cz];
 var aspect;
 var zNear = 0.1;
 var zFar = 2000;
@@ -125,7 +126,10 @@ function main(){
   var lightColorLocation = new Array();
   var matrixLocation = new Array();
   var normalMatrixLocation = new Array();
-  var texLocation = new Array();
+  var texLocation = new Array(); 
+  var cameraPosLocation = new Array();
+  var diffuseTypeLocation = new Array();
+  var worldMatrixLocation = new Array();
   
 
 
@@ -153,13 +157,20 @@ function main(){
     positionAttributeLocation[m] = gl.getAttribLocation(programs[0], "a_position");
     normalAttributeLocation[m] = gl.getAttribLocation(programs[0],"inNormal");
     uvAttributeLocation[m] = gl.getAttribLocation(programs[0], "a_uv");
-    
+
+    //diffType (uniform int) e uniform vec3 cameraPos
     materialDiffColorLocation[m] = gl.getUniformLocation(programs[0], 'mDiffColor');
     lightDirectionLocation[m] = gl.getUniformLocation(programs[0], 'lightDirection');
     lightColorLocation[m] = gl.getUniformLocation(programs[0], 'lightColor');
     matrixLocation[m] = gl.getUniformLocation(programs[0],"matrix");
     normalMatrixLocation[m] = gl.getUniformLocation(programs[0],"nMatrix");
     texLocation[m] = gl.getUniformLocation(programs[0], "u_texture");
+    diffuseTypeLocation[m] = gl.getUniformLocation(programs[0], "diffType");
+    cameraPosLocation[m] = gl.getUniformLocation(programs[0], "cameraPos");
+    worldMatrixLocation[m] = gl.getUniformLocation(programs[0], "worldMatrix");
+
+    
+
   }
   
   for(loc = 0; loc < positionAttributeLocation.length; loc++) {
@@ -303,11 +314,15 @@ function main(){
         var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
         
         gl.uniformMatrix4fv(matrixLocation[loc], gl.FALSE, utils.transposeMatrix(projectionMatrix));
-        gl.uniformMatrix4fv(normalMatrixLocation[loc], gl.FALSE, utils.transposeMatrix(boatWorldMatrix));
-        
+        gl.uniformMatrix4fv(normalMatrixLocation[loc], gl.FALSE, utils.invertMatrix(boatWorldMatrix));
+        gl.uniformMatrix4fv(worldMatrixLocation[loc], gl.FALSE, utils.transposeMatrix(boatWorldMatrix));
         gl.uniform3fv(materialDiffColorLocation[loc], boatDiffuse);
         gl.uniform3fv(lightColorLocation[loc],  directionalLightColor);
         gl.uniform3fv(lightDirectionLocation[loc],  directionalLight);
+        gl.uniform3fv(cameraPosLocation[loc], cameraPos);
+        gl.uniform1i(diffuseTypeLocation[loc],diffType);
+
+
         
         gl.activeTexture(gl.TEXTURE0);
         gl.uniform1i(texLocation[loc], 0);
