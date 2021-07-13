@@ -3,8 +3,8 @@ var canvas;
 var gl;
 var baseDir;
 var shaderDir;
-var diffType = 1;
-var specType = 4;
+var diffType = 3;
+var specType = 3;
 
 var modelTexture = Array(); //array contenente i path alle textures
 modelTexture[0] = 'assetshowcase/pedestal.png';
@@ -50,7 +50,7 @@ var rvz = 0.0;
 
 //########### LIGHTS
 var alpha = 0;
-var beta = -45;
+var beta = 90;
 var dirLightAlpha = -utils.degToRad(alpha);
 var dirLightBeta  = -utils.degToRad(beta);
 var directionalLight = [Math.cos(dirLightAlpha) * Math.cos(dirLightBeta),
@@ -401,7 +401,6 @@ async function init() {
   await utils.loadFiles([shaderDir + 'vs.glsl', shaderDir + 'fs.glsl'], function (shaderText) {
     var vertexShader = utils.createShader(gl, gl.VERTEX_SHADER, shaderText[0]);
     var fragmentShader = utils.createShader(gl, gl.FRAGMENT_SHADER, shaderText[1]);
-    console.log("bip bop boop");
     programs[0] = utils.createProgram(gl, vertexShader, fragmentShader);  //setting program
 
   });

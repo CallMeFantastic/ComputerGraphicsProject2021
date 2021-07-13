@@ -20,13 +20,12 @@ uniform float specShine;
 
 void main() {
   vec3 nNormal = normalize(fsNormal);
-  vec3 nLightDirection = normalize(lightDirection);
+  vec3 nLightDirection = normalize(-lightDirection);
   vec4 texcol = texture(u_texture, uvFS);
   vec3 cameraDir = normalize(cameraPos - fsPos);
-  float DToonTh = 50.0;
-  float SToonTh = 90.0;
+  float DToonTh = 60.0;
+  float SToonTh = 45.0;
   vec4 ambientContr = ambientLight;
-  float LdotN = max(0.0, dot(nNormal, nLightDirection));
   vec3 halfVec = normalize(cameraDir + nLightDirection);
   float HdotN = max(dot(nNormal, halfVec), 0.0);
 
@@ -37,13 +36,17 @@ void main() {
   float M = (200.0 - specShine) / 200.0;
 	float M2 = M * M;
   float VdotN = max(0.00001, dot(nNormal, cameraDir));
+  float LdotN = max(0.0, dot(nNormal, nLightDirection));
   float SspecKwAng = 80.0;
 
   vec4 diffTerm = vec4(1.0, 1.0, 1.0, 1.0);
+
+
   //---------------------------------------LAMBERT DIFFUSION
   if(diffType == 1){
   diffTerm = vec4(lightColor, 1.0) * texcol * clamp(dot(nLightDirection, nNormal), 0.0, 1.0);
   }
+
   //---------------------------------------OREN-NAYAR DIFFUSION
   if(diffType == 2) {
     float sigma2 = 0.25;
@@ -60,10 +63,12 @@ void main() {
     vec4 diffuseOrenNayar = vec4(lightColor, 1.0) * texcol * Lcontr * (A + B * G * sin(alpha) * tan(beta));
     diffTerm = diffuseOrenNayar;
   }
-  //-----------------------------------TOON DIFF -NOT WORKING
-  if(diffType == 3){
-    vec4 diffuseToon = max(sign(max(0.0, dot(nNormal, nLightDirection)) - DToonTh ), 0.0) * vec4(lightColor, 1.0) * texcol;
-    diffTerm = diffuseToon;   
+
+
+  //--------------------------------BETTER TOON 
+  if(diffType == 3) {
+    vec4 diffuseToon = max(sign(max(0.0, dot(nNormal, nLightDirection)) - cos(DToonTh * 3.14 / 180.0)), 0.5) * vec4(lightColor, 1.0) * texcol;
+    diffTerm = diffuseToon;
   }
 
   //-----------------SPECULAR---------------------------
@@ -78,8 +83,28 @@ void main() {
   if(specType == 2) {
     specularTerm = specularColor * pow(max(dot(halfVec, nNormal), 0.0), specShine);
   }
+
+  if(specType == 3) {
+    vec4 specularToon = max(sign(max(0.0, dot(cameraDir, -reflect(nLightDirection, nNormal)) - cos(SToonTh * 3.14 / 180.0))), 0.5) * vec4(lightColor, 1.0) * texcol;
+    specularTerm = specularToon;
+  }  
+
+  
+  if (specType == 4){
+    //------------------------WARD
+    float alphaX = M2;
+	  float alphaY = M2 * (1.0 - 0.999 * SToonTh);
+    float wsX = pow(HdotT / alphaX, 2.0);
+    float wsY = pow(HdotB / alphaY, 2.0);
+    vec4 LScol = vec4(lightColor, 1.0) * specularColor * max(sign(LdotN),0.0);
+    
+    vec4 specularWard = LScol * exp(-(wsX + wsY) / pow(HdotN, 2.0)) / (12.566 * alphaX * alphaY * sqrt(VdotN / LdotN));
+
+    specularTerm = specularWard;
+  }
+  
   //-------------------COOK-TORRANCE - NOT WORKING LOOK AT specularType and LScol
-  //if(specType == 3){
+  //if(specType == 5){
     //LdotN = max(0.00001, LdotN);
 	  //float VdotN = max(0.00001, dot(nNormal, cameraDir));
 	  //HdotN = max(0.00001, HdotN);
@@ -102,21 +127,6 @@ void main() {
 	  //vec4 specularCookTorrance = LScol * F * DG / (4.0 * VdotN);
     //specularTerm = specularCookTorrance;
   //}
-  //------------------------WARD
-  if (specType == 4){
-    float alphaX = M2;
-	  float alphaY = M2 * (1.0 - 0.999*SToonTh);
-	  float sang = sin(3.14 * SspecKwAng);
-	  float cang = cos(3.14 * SspecKwAng);
-	  float wsX = pow(HdotT * cang - HdotB * sang, 2.0);
-	  float wsY = pow(HdotB * cang + HdotT * sang, 2.0);
-    vec4 LScol = vec4(lightColor, 1.0) * specularColor * max(sign(LdotN),0.0);
-	  vec4 specularWard = LScol / (12.566*sqrt(VdotN / LdotN*alphaX*alphaY)) * exp(-(wsX / alphaX + wsY / alphaY) / pow(HdotN,2.0));
-    specularTerm = specularWard;
-  }
-  
-  //vec4 finalColor =  clamp(diffTerm, 0.0, 1.0);
-  //outColor = vec4(finalColor.rgb, texcol.a);
 
   vec4 finalColor = clamp(diffTerm + specularTerm + ambientContr, 0.0, 1.0);
   outColor = vec4(finalColor.rgb, texcol.a);
