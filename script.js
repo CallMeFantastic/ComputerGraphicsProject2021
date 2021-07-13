@@ -4,6 +4,7 @@ var gl;
 var baseDir;
 var shaderDir;
 var diffType = 1;
+var specType = 4;
 
 var modelTexture = Array(); //array contenente i path alle textures
 modelTexture[0] = 'assetshowcase/pedestal.png';
@@ -56,7 +57,10 @@ var directionalLight = [Math.cos(dirLightAlpha) * Math.cos(dirLightBeta),
               Math.sin(dirLightAlpha),
               Math.cos(dirLightAlpha) * Math.sin(dirLightBeta)
               ];
-var directionalLightColor = [1.0, 1.0, 1.0];       
+var directionalLightColor = [1.0, 1.0, 1.0];
+var specularShine = 100;
+var specularColor = [0.5, 0.3, 0.2, 1.0];
+var ambientLight = [0.1, 0.1, 0.1, 1.0];     
 
 
 //################## BOAT TRANSFORM
@@ -129,7 +133,12 @@ function main(){
   var texLocation = new Array(); 
   var cameraPosLocation = new Array();
   var diffuseTypeLocation = new Array();
+  var specularTypeLocation = new Array();
   var worldMatrixLocation = new Array();
+  var ambientLightLocation = new Array();
+  var specShineLocation = new Array();
+  var specColorLocation = new Array();
+
   
 
 
@@ -166,9 +175,12 @@ function main(){
     normalMatrixLocation[m] = gl.getUniformLocation(programs[0],"nMatrix");
     texLocation[m] = gl.getUniformLocation(programs[0], "u_texture");
     diffuseTypeLocation[m] = gl.getUniformLocation(programs[0], "diffType");
+    specularTypeLocation[m] = gl.getUniformLocation(programs[0], "specType");
     cameraPosLocation[m] = gl.getUniformLocation(programs[0], "cameraPos");
     worldMatrixLocation[m] = gl.getUniformLocation(programs[0], "worldMatrix");
-
+    ambientLightLocation[m] = gl.getUniformLocation(programs[0], "ambientLight");
+    specColorLocation[m] = gl.getUniformLocation(programs[0], "specularColor");
+    specShineLocation[m] = gl.getUniformLocation(programs[0], "specShine");
     
 
   }
@@ -320,6 +332,10 @@ function main(){
         gl.uniform3fv(lightColorLocation[loc],  directionalLightColor);
         gl.uniform3fv(lightDirectionLocation[loc],  directionalLight);
         gl.uniform3fv(cameraPosLocation[loc], cameraPos);
+        gl.uniform4fv(ambientLightLocation[loc],ambientLight);
+        gl.uniform4fv(specColorLocation[loc], specularColor);
+        gl.uniform1f(specShineLocation[loc],specularShine);
+        gl.uniform1i(specularTypeLocation[loc], specType);
         gl.uniform1i(diffuseTypeLocation[loc],diffType);
 
 
