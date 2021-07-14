@@ -4,7 +4,7 @@ var gl;
 var baseDir;
 var shaderDir;
 var diffType = 1;
-var specType = 5;
+var specType = 1;
 
 var modelTexture = Array(); //array contenente i path alle textures
 modelTexture[0] = 'assetshowcase/pedestal.png';
@@ -334,11 +334,10 @@ function main(){
         gl.uniform3fv(cameraPosLocation[loc], cameraPos);
         gl.uniform4fv(ambientLightLocation[loc],ambientLight);
         gl.uniform4fv(specColorLocation[loc], specularColor);
+
         gl.uniform1f(specShineLocation[loc],specularShine);
         gl.uniform1i(specularTypeLocation[loc], specType);
         gl.uniform1i(diffuseTypeLocation[loc],diffType);
-
-
         
         gl.activeTexture(gl.TEXTURE0);
         gl.uniform1i(texLocation[loc], 0);
@@ -423,5 +422,48 @@ async function init() {
  
  main();
  }
+
+ function onSliderChange(value){
+  specularShine = value;
+}
+
+function onSliderChange2(value){
+  alpha = value;
+}
+
+function onSliderChange3(value){
+  beta = value;
+}
+
+function onColorChange(value){
+  col = value.substring(1,7);
+R = parseInt(col.substring(0,2) ,16) / 255;
+G = parseInt(col.substring(2,4) ,16) / 255;
+B = parseInt(col.substring(4,6) ,16) / 255;
+  specularColor = [R,G,B, 1.0];
+  /*backgroundColorR =R;
+  backgroundColorG = G;
+  backgroundColorB = B;*/
+
+}
+
+function onCheckBoxChange(value){
+  if(value == true){
+    ambientLight = [0.1,0.1,0.1,1.0];
+  }else{
+    ambientLight = [0.0, 0.0, 0.0, 1.0];
+  }
+}
+
+function onDropdownChange(value){
+  diffType = value;
+  console.log("Drop-down value changed to "+value);
+}
+
+function onDropdownChange1(value){
+  specType = value;
+  console.log("Drop-down value changed to "+value);
+}
+
  
  window.onload = init;
