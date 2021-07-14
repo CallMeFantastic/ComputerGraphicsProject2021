@@ -3,8 +3,8 @@ var canvas;
 var gl;
 var baseDir;
 var shaderDir;
-var diffType = 3;
-var specType = 3;
+var diffType = 1;
+var specType = 5;
 
 var modelTexture = Array(); //array contenente i path alle textures
 modelTexture[0] = 'assetshowcase/pedestal.png';
@@ -67,12 +67,12 @@ var ambientLight = [0.1, 0.1, 0.1, 1.0];
 var boatModel;
 
 var boatTx = 0.0
-var boatTy = 0.0
+var boatTy = -1.5
 var boatTz = -10.0
 var boatRx = 0.0;
 var boatRy = 0.0;
 var boatRz = 0.0;
-var boatS  = 0.004;
+var boatS  = 0.008;
 var boatDiffuse = [0.69, 0.0, 1.0];
 var boatWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
 
@@ -217,7 +217,6 @@ function main(){
       var texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture);  //<-- se non va, 2nd param = texture[loc]
       image.src = baseDir + modelTexture[2];
-      console.log("baseDir"+image.src);  //LOGGGGGGGG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       image.onload = function () {
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -306,7 +305,8 @@ function main(){
   
   function drawScene() {
     animate();
-     
+    
+    
     gl.clearColor(0.85, 0.85, 0.85, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
