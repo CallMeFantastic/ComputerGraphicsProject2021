@@ -38,19 +38,19 @@
             </select>
 			<p><b> Specular Shine </b></p>
 			<div id="slider1"> 1
-				<input id="slide1" type="range" min="1" max="100" step="1" value="100" onchange="onSliderChange(this.value);"/> 100 <br/>
+				<input id="slide1" type="range" min="1" max="100" step="1" value="100" oninput="onSliderChange(this.value);"/> 100 <br/>
 			</div>
 
 			<p><b> Dir θ </b></p>
 			<div id="slider2">
-				<input id="slide2" type="range" min="90" max="220" step="1" value="190" onchange="onSliderChange2(this.value);"/> <br/>
+				<input id="slide2" type="range" min="90" max="220" step="1" value="190" oninput="onSliderChange2(this.value);"/> <br/>
 			</div>
 			<p><b> Dir φ </b></p>
 			<div id="slider3">
-				<input id="slide3" type="range" min="1" max="180" step="1" value="70" onchange="onSliderChange3(this.value);"/> <br/>
+				<input id="slide3" type="range" min="1" max="180" step="1" value="70" oninput="onSliderChange3(this.value);"/> <br/>
 			</div>
 		  <p><b> Specular Color</b></p>
-			<div id="LA14"><input type="color" id="LAlightColor" value="#FF0000" onchange="onColorChange(this.value);"></div> <br/>
+			<div id="LA14"><input type="color" id="LAlightColor" value="#FF0000" oninput="onColorChange(this.value);"></div> <br/>
 
 			<p><b> CheckBox  </b></p>
 				<input type="checkbox" id="chbx" onclick="onCheckBoxChange(this.checked);" checked/> Ambient Light<br/>

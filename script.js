@@ -58,7 +58,7 @@ var directionalLight = [Math.cos(dirLightAlpha) * Math.cos(dirLightBeta),
               Math.cos(dirLightAlpha) * Math.sin(dirLightBeta)
               ];
 var directionalLightColor = [1.0, 1.0, 1.0];
-var specularShine = 100;
+var specularShine = 100.0;
 var specularColor = [0.5, 0.3, 0.2, 1.0];
 var ambientLight = [0.1, 0.1, 0.1, 1.0];     
 
@@ -305,8 +305,14 @@ function main(){
   
   function drawScene() {
     animate();
-    
-    
+    //N.B accorgimento del -1 nella terza componente per evitare il nero iniziale
+    dirLightAlpha = utils.degToRad(alpha);
+    dirLightBeta  = utils.degToRad(beta);
+    directionalLight = [Math.cos(dirLightAlpha) * Math.cos(dirLightBeta),
+    Math.sin(dirLightAlpha),
+    -(Math.cos(dirLightAlpha) * Math.sin(dirLightBeta))
+    ];
+        
     gl.clearColor(0.85, 0.85, 0.85, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
@@ -331,6 +337,8 @@ function main(){
         gl.uniform3fv(materialDiffColorLocation[loc], boatDiffuse);
         gl.uniform3fv(lightColorLocation[loc],  directionalLightColor);
         gl.uniform3fv(lightDirectionLocation[loc],  directionalLight);
+        console.log("il value di directionalLight è diventato:",+directionalLight[0], +directionalLight[1], +directionalLight[2], +directionalLight[3]);
+
         gl.uniform3fv(cameraPosLocation[loc], cameraPos);
         gl.uniform4fv(ambientLightLocation[loc],ambientLight);
         gl.uniform4fv(specColorLocation[loc], specularColor);
@@ -423,16 +431,21 @@ async function init() {
  main();
  }
 
+ //TODO: make it continuous
  function onSliderChange(value){
   specularShine = value;
 }
 
 function onSliderChange2(value){
   alpha = value;
+  console.log("il value di alpha:",+alpha);
+  //console.log("il value di directionalLight è diventato:",+directionalLight[0], +directionalLight[1], +directionalLight[2], +directionalLight[3]);
 }
 
 function onSliderChange3(value){
   beta = value;
+  console.log("il value di beta:",+beta);
+  //console.log("il value di directionalLight è diventato:",+directionalLight[0], +directionalLight[1], +directionalLight[2], +directionalLight[3]);
 }
 
 function onColorChange(value){
