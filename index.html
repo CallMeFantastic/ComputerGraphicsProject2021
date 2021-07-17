@@ -5,9 +5,10 @@
 		<title>GUI</title>
 	
 		<script type="text/javascript" src="utils.js"></script>
+		<script type="text/javascript" src="cubeDefinition.js"></script>
 		<script type="text/javascript" src="webgl-obj-loader.min.js"></script>
 		<script type="text/javascript" src="script.js"></script>
-		<!-- <script type="text/javascript" src="objPositions.js"></script> -->
+		
 	</head>
 
 	<body style="background-color: grey;">
@@ -43,11 +44,11 @@
 
 			<p><b> Dir θ </b></p>
 			<div id="slider2">
-				<input id="slide2" type="range" min="90" max="220" step="1" value="190" oninput="onSliderChange2(this.value);"/> <br/>
+				<input id="slide2" type="range" min="0" max="360" step="1" value="0" oninput="onSliderChange2(this.value);"/> <br/>
 			</div>
 			<p><b> Dir φ </b></p>
 			<div id="slider3">
-				<input id="slide3" type="range" min="1" max="180" step="1" value="70" oninput="onSliderChange3(this.value);"/> <br/>
+				<input id="slide3" type="range" min="0" max="360" step="1" value="90" oninput="onSliderChange3(this.value);"/> <br/>
 			</div>
 		  <p><b> Specular Color</b></p>
 			<div id="LA14"><input type="color" id="LAlightColor" value="#FF0000" oninput="onColorChange(this.value);"></div> <br/>

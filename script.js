@@ -13,6 +13,7 @@ modelTexture[2] = 'assetshowcase/Boat/textures/boat_diffuse.bmp';
 modelTexture[3] = 'assetshowcase/Boat/textures/boat_gloss.bmp';
 modelTexture[4] = 'assetshowcase/Boat/textures/boat_normal.bmp';
 modelTexture[5] = 'assetshowcase/Boat/textures/boat_specular.bmp'; //verifica sui suoi esempi
+modelTexture[6] = 'assetshowcase/crate.png'
 
 var modelStr = new Array(); //array contenente i path agli obj
 modelStr[0] = 'assetshowcase/Boat/Boat.obj';
@@ -23,7 +24,7 @@ var models3DCount = 2;
 //CAMERA COORDS
 var cx = 0.0;
 var cy = 0.0;
-var cz = 2.0;
+var cz = 20.0;
 var elevation = 0.0;
 var angle = 0.0;
 var w, h;
@@ -80,12 +81,12 @@ var boatWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, bo
 var pedestalModel;
 
 var pedestalTx = 0.0
-var pedestalTy = -10.0
+var pedestalTy = -3.0
 var pedestalTz = -10.0
 var pedestalRx = 0.0;
 var pedestalRy = 0.0;
 var pedestalRz = 0.0;
-var pedestalS  = 0.004;
+var pedestalS  = 0.2;
 var pedestalDiffuse = [0.69, 0.0, 1.0];
 var pedestalWorldMatrix = utils.MakeWorld(pedestalTx, pedestalTy, pedestalTz, pedestalRx, pedestalRy, pedestalRz, pedestalS);
 
@@ -139,9 +140,6 @@ function main(){
   var specShineLocation = new Array();
   var specColorLocation = new Array();
 
-  
-
-
 
   //################## ATTTIBUTES
   //####### BOAT
@@ -157,8 +155,6 @@ function main(){
   objectTexCoords[1] = pedestalModel.textures;
 
 
-
-  
   //creare buffer, dire il tipo, feedarlo, (a_position fatta) 
   //moltiplicazione di matrici, creazione buffer uniform, inserire dati , GetUniformLocation (matrix)
   for(m = 0; m < models3DCount; m++) {
@@ -181,20 +177,26 @@ function main(){
     ambientLightLocation[m] = gl.getUniformLocation(programs[0], "ambientLight");
     specColorLocation[m] = gl.getUniformLocation(programs[0], "specularColor");
     specShineLocation[m] = gl.getUniformLocation(programs[0], "specShine");
-    
-
   }
-  
+
+  var cubePosLoc = gl.getAttribLocation(programs[1], "a_position");
+  var cubeUvLoc = gl.getAttribLocation(programs[1], "a_uv");
+
+  var cubeTexLoc = gl.getUniformLocation(programs[1], "u_texture");
+  var cubeMatrixLoc = gl.getUniformLocation(programs[1], "matrix");
+
   for(loc = 0; loc < positionAttributeLocation.length; loc++) {
     //boat params locations in first half of Location arrays - object<Param>[0]
     if(loc < positionAttributeLocation.length / 2){
+      vaos[loc] = gl.createVertexArray();
       gl.bindVertexArray(vaos[loc]);
+
       var positionBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectVertices[0]),gl.STATIC_DRAW);
       gl.enableVertexAttribArray(positionAttributeLocation[loc]);
-      gl.vertexAttribPointer(positionAttributeLocation[loc], 3, gl.FLOAT, false, 0, 0);
-      
+      gl.vertexAttribPointer(positionAttributeLocation[loc], 3, gl.FLOAT, false, 0, 0); 
+
       //PASSING NORMALS INTO SHADERS inNormal buffer
       var normalBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
@@ -213,23 +215,26 @@ function main(){
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objectIndices[0]), gl.STATIC_DRAW);
 
-      var image = new Image();
       var texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, texture);  //<-- se non va, 2nd param = texture[loc]
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+
+      var image = new Image();
       image.src = baseDir + modelTexture[2];
       image.onload = function () {
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.generateMipmap(gl.TEXTURE_2D);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.generateMipmap(gl.TEXTURE_2D);
       }
     }
-   /*
+   
     //pedestal params locations in second half of Location arrays - object<Param>[1]
     else { 
+      vaos[loc] = gl.createVertexArray();
       gl.bindVertexArray(vaos[loc]);
+
       var positionBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectVertices[1]),gl.STATIC_DRAW);
@@ -254,22 +259,51 @@ function main(){
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objectIndices[1]), gl.STATIC_DRAW);
 
-      var image = new Image(); 
       var texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, texture);  //<-- se non va, 2nd param = texture[loc]
-      image.src = baseDir + modelTexture[0];
-      console.log("baseDir"+image.src); //LOGGGGGGGG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      image.onload = function () {
       gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.generateMipmap(gl.TEXTURE_2D);
+
+      var image2 = new Image();
+      image2.src = baseDir + modelTexture[0];
+      image2.onload = function () {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image2);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.generateMipmap(gl.TEXTURE_2D);
       }
     }
-    */
   }
+
+      vaos[2] = gl.createVertexArray();
+      gl.bindVertexArray(vaos[2]);
+
+      var positionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices),gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(cubePosLoc);
+      gl.vertexAttribPointer(cubePosLoc, 3, gl.FLOAT, false, 0, 0);
+
+      var uvBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(cubeUvLoc);
+      gl.vertexAttribPointer(cubeUvLoc, 2, gl.FLOAT, false, 0, 0);
+
+      var indexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+      var image = new Image();
+      image.src = baseDir + modelTexture[6];
+      image.onload = function () {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.generateMipmap(gl.TEXTURE_2D);
+      }
 
   
   drawScene();
@@ -297,7 +331,6 @@ function main(){
       if (boatRz >= wibblywobbly) flag = 1;
       else if (boatRz <= -wibblywobbly) flag = 0;
       
-      //console.log(boatRz);
     }
     boatWorldMatrix = utils.MakeWorld(boatTx, boatTy, boatTz, boatRx, boatRy, boatRz, boatS);
     lastUpdateTime = currentTime;
@@ -325,9 +358,6 @@ function main(){
       gl.useProgram(programs[0]);
 
       if(loc < positionAttributeLocation.length / 2) {
-        
-        
-        
         var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, boatWorldMatrix);
         var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
         
@@ -337,7 +367,6 @@ function main(){
         gl.uniform3fv(materialDiffColorLocation[loc], boatDiffuse);
         gl.uniform3fv(lightColorLocation[loc],  directionalLightColor);
         gl.uniform3fv(lightDirectionLocation[loc],  directionalLight);
-        console.log("il value di directionalLight è diventato:",+directionalLight[0], +directionalLight[1], +directionalLight[2], +directionalLight[3]);
 
         gl.uniform3fv(cameraPosLocation[loc], cameraPos);
         gl.uniform4fv(ambientLightLocation[loc],ambientLight);
@@ -348,34 +377,50 @@ function main(){
         gl.uniform1i(diffuseTypeLocation[loc],diffType);
         
         gl.activeTexture(gl.TEXTURE0);
-        gl.uniform1i(texLocation[loc], 0);
+        gl.uniform1i(texLocation[loc], texture);
 
         gl.bindVertexArray(vaos[loc]);
         gl.drawElements(gl.TRIANGLES, objectIndices[0].length, gl.UNSIGNED_SHORT, 0);
       }
 
-    /*  else {
-
-        
-        
+      else {
         var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, pedestalWorldMatrix);
         var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
         
         gl.uniformMatrix4fv(matrixLocation[loc], gl.FALSE, utils.transposeMatrix(projectionMatrix));
-        gl.uniformMatrix4fv(normalMatrixLocation[loc], gl.FALSE, utils.transposeMatrix(pedestalWorldMatrix));
-        
+        gl.uniformMatrix4fv(normalMatrixLocation[loc], gl.FALSE, utils.invertMatrix(pedestalWorldMatrix));
+        gl.uniformMatrix4fv(worldMatrixLocation[loc], gl.FALSE, utils.transposeMatrix(pedestalWorldMatrix));
         gl.uniform3fv(materialDiffColorLocation[loc], pedestalDiffuse);
         gl.uniform3fv(lightColorLocation[loc],  directionalLightColor);
         gl.uniform3fv(lightDirectionLocation[loc],  directionalLight);
+
+        gl.uniform3fv(cameraPosLocation[loc], cameraPos);
+        gl.uniform4fv(ambientLightLocation[loc],ambientLight);
+        gl.uniform4fv(specColorLocation[loc], specularColor);
+
+        gl.uniform1f(specShineLocation[loc],specularShine);
+        gl.uniform1i(specularTypeLocation[loc], specType);
+        gl.uniform1i(diffuseTypeLocation[loc],diffType);
         
         gl.activeTexture(gl.TEXTURE0);
-        gl.uniform1i(texLocation[loc], 0);
-        
+        gl.uniform1i(texLocation[loc], texture);
+
         gl.bindVertexArray(vaos[loc]);
         gl.drawElements(gl.TRIANGLES, objectIndices[1].length, gl.UNSIGNED_SHORT, 0);
       }
-*/
     }
+
+    gl.useProgram(programs[1]);
+
+    var vw = utils.multiplyMatrices(viewMatrix, utils.MakeScaleMatrix(20));
+    var pm = utils.multiplyMatrices(perspectiveMatrix, vw);
+
+    gl.uniformMatrix4fv(cubeMatrixLoc, gl.FALSE, utils.transposeMatrix(pm));
+    gl.activeTexture(gl.TEXTURE0);
+    gl.uniform1i(cubeTexLoc, texture);
+
+    gl.bindVertexArray(vaos[2]);
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
     
     window.requestAnimationFrame(drawScene);
    }
@@ -413,13 +458,13 @@ async function init() {
   });
 
 /* repeat for each vs and fs program*/
-/*
-  await utils.loadFiles([shaderDir + 'vs_2.glsl', shaderDir + 'fs_2.glsl'], function (shaderText) {
+
+  await utils.loadFiles([shaderDir + 'vs_cube.glsl', shaderDir + 'fs_cube.glsl'], function (shaderText) {
     var vertexShader = utils.createShader(gl, gl.VERTEX_SHADER, shaderText[0]);
     var fragmentShader = utils.createShader(gl, gl.FRAGMENT_SHADER, shaderText[1]);
     programs[1] = utils.createProgram(gl, vertexShader, fragmentShader); 
 
-  });*/
+  });
  
  //########################################################## LOAD OBJECT FILES (INSIDE ASYNC FUNCTION)
  var boatObjStr = await utils.get_objstr(baseDir + modelStr[0]);
@@ -429,7 +474,7 @@ async function init() {
  pedestalModel = new OBJ.Mesh(pedestalObjStr);
  
  main();
- }
+}
 
  //TODO: make it continuous
  function onSliderChange(value){
@@ -438,14 +483,10 @@ async function init() {
 
 function onSliderChange2(value){
   alpha = value;
-  console.log("il value di alpha:",+alpha);
-  //console.log("il value di directionalLight è diventato:",+directionalLight[0], +directionalLight[1], +directionalLight[2], +directionalLight[3]);
 }
 
 function onSliderChange3(value){
   beta = value;
-  console.log("il value di beta:",+beta);
-  //console.log("il value di directionalLight è diventato:",+directionalLight[0], +directionalLight[1], +directionalLight[2], +directionalLight[3]);
 }
 
 function onColorChange(value){
@@ -477,6 +518,12 @@ function onDropdownChange1(value){
   specType = value;
   console.log("Drop-down value changed to "+value);
 }
-
+window.addEventListener('keydown', (e) => {
+  if(e.key == 'w') cz -= 1.00; //w
+  if(e.key == 's') cz += 1.00; //s
+  if(e.key == 'a') angle -= 1.00;
+  if(e.key == 'd') angle += 1.00;
+  console.log(e.key);
+});
  
  window.onload = init;
