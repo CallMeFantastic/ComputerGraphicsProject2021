@@ -50,6 +50,12 @@ var rvy = 0.0;
 var rvz = 0.0;
 
 //########### LIGHTS
+var lightType = 1;
+var lightPos = [0.0, 5.0, -10.0];
+var c_out = 60;
+var c_in = 45;
+var l_decay = 1;
+var l_target = 30;
 var alpha = 0;
 var beta = 90;
 var dirLightAlpha = -utils.degToRad(alpha);
@@ -140,6 +146,13 @@ function main(){
   var lightDirectionLocation = new Array();
   var lightColorLocation = new Array();
 
+  var lightTypeLocation = new Array();
+  var lightPosLocation = new Array();
+  var lightConeOutLocation = new Array();
+  var lightConeInLocation = new Array();
+  var lightDecayLocation = new Array();
+  var lightTargetLocation = new Array();
+
   var cameraPosLocation = new Array();
   var ambientLightLocation = new Array();
   var texLocation = new Array(); 
@@ -181,6 +194,13 @@ function main(){
 
     lightDirectionLocation[m] = gl.getUniformLocation(programs[0], 'lightDirection');
     lightColorLocation[m] = gl.getUniformLocation(programs[0], 'lightColor');
+
+    lightTypeLocation[m] = gl.getUniformLocation(programs[0], 'lyghtType');
+    lightPosLocation[m] = gl.getUniformLocation(programs[0], 'lightPos');
+    lightConeOutLocation[m] = gl.getUniformLocation(programs[0], 'lightConeOut');
+    lightConeInLocation[m] = gl.getUniformLocation(programs[0], 'lightConeIn');
+    lightDecayLocation[m] = gl.getUniformLocation(programs[0], 'lightDecay');
+    lightTargetLocation[m] = gl.getUniformLocation(programs[0], 'lightTarget');
 
     cameraPosLocation[m] = gl.getUniformLocation(programs[0], "cameraPos");
     ambientLightLocation[m] = gl.getUniformLocation(programs[0], "ambientLight");
@@ -357,6 +377,14 @@ function main(){
 
       gl.uniform3fv(lightColorLocation[loc],  directionalLightColor);
       gl.uniform3fv(lightDirectionLocation[loc],  directionalLight);
+
+      gl.uniform1i(lightTypeLocation[m], lightType);
+      gl.uniform3fv(lightPosLocation[m], lightPos);
+      gl.uniform1f(lightConeInLocation[m], c_in);
+      gl.uniform1f(lightConeOutLocation[m], c_out);  
+      gl.uniform1f(lightDecayLocation[m], l_decay);  
+      gl.uniform1f(lightTargetLocation[m], l_target);
+
 
       gl.uniform3fv(cameraPosLocation[loc], cameraPos);
       gl.uniform4fv(ambientLightLocation[loc],ambientLight);
