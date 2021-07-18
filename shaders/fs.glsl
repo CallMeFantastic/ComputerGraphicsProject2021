@@ -7,16 +7,18 @@ in vec3 fsPos;
 
 out vec4 outColor;
 
-uniform vec3 mDiffColor; //material diffuse color - NON VIENE USATA DA NESSUNA PARTE 
+uniform int diffType;
+uniform vec3 mDiffColor; //material diffuse color
+uniform int specType;
+uniform vec4 specularColor;
+uniform float specShine;
+
 uniform vec3 lightDirection; //directional light vector
 uniform vec3 lightColor; //directional light color
+
 uniform vec3 cameraPos; // [cx, cy, cz] 
 uniform vec4 ambientLight;
-uniform vec4 specularColor;
 uniform sampler2D u_texture;
-uniform int diffType;
-uniform int specType;
-uniform float specShine;
 
 void main() {
   vec3 nNormal = normalize(fsNormal);
