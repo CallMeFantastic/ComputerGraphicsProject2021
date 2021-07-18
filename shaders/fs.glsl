@@ -86,12 +86,18 @@ void main() {
   }
 
   if(specType == 3) {
+  //-------------------- TOON PHONG -------------------------
     vec4 specularToon = max(sign(max(0.0, dot(cameraDir, -reflect(nLightDirection, nNormal)) - cos(SToonTh * 3.14 / 180.0))), 0.5) * vec4(lightColor, 1.0) * LScol;
     specularTerm = specularToon;
   }  
 
+   if(specType == 4) {
+  //-------------------- TOON BLINN -------------------------
+    vec4 specularToon = max(sign(max(0.0, dot(nNormal, normalize(nLightDirection + cameraDir)) - cos(SToonTh * 3.14 / 180.0))), 0.5) * vec4(lightColor, 1.0) * LScol;
+    specularTerm = specularToon;
+  }  
   
-  if (specType == 4) {
+  if (specType == 5) {
     //------------------------WARD
     float alphaX = M2;
 	  float alphaY = M2 * (1.0 - 0.999 * SToonTh);
@@ -103,7 +109,7 @@ void main() {
     specularTerm = specularWard;
   }
   
-  if (specType == 5) {
+  if (specType == 6) {
   //-------------------COOK-TORRANCE
 	  HdotN = max(0.00001, HdotN);
 	  float HdotV = max(0.00001, dot(halfVec, cameraDir));
