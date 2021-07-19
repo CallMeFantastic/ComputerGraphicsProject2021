@@ -107,6 +107,8 @@ var camera = [cx, cy, cz];
 //var target = [Rx, Ry, Rz];
 var upVector = [0.0, 1.0, 0.0];
 
+var texture = new Array();
+
 
 function main(){
 
@@ -245,13 +247,13 @@ function main(){
 
     //boat params locations in first half of Location arrays - object<Param>[0]
     if(loc < positionAttributeLocation.length / 2){
-      var texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, texture);
+      texture[0] = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture[0]);
 
       var image1 = new Image();
       image1.src = baseDir + modelTexture[2];
       image1.onload = function () {
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.bindTexture(gl.TEXTURE_2D, texture[0]);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image1);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -262,13 +264,13 @@ function main(){
    
     //pedestal params locations in second half of Location arrays - object<Param>[1]
     else { 
-      var texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, texture);
+      texture[1] = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture[1]);
 
       var image2 = new Image();
       image2.src = baseDir + modelTexture[0];
       image2.onload = function () {
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.bindTexture(gl.TEXTURE_2D, texture[1]);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image2);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -297,13 +299,13 @@ function main(){
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
-      var texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, texture);
+      texture[2] = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture[2]);
 
       var image3 = new Image();
       image3.src = baseDir + modelTexture[6];
       image3.onload = function () {
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.bindTexture(gl.TEXTURE_2D, texture[2]);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image3);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -390,7 +392,10 @@ function main(){
       gl.uniform4fv(ambientLightLocation[loc],ambientLight);
 
       gl.activeTexture(gl.TEXTURE0);
-      gl.uniform1i(texLocation[loc], texture);
+      gl.bindTexture(gl.TEXTURE_2D, texture[loc]);
+      gl.uniform1i(texLocation[loc], 0);
+      
+      console.log("3:" + texture[loc]);
 
       gl.bindVertexArray(vaos[loc]);
       gl.drawElements(gl.TRIANGLES, objectIndices[loc].length, gl.UNSIGNED_SHORT, 0);
@@ -402,8 +407,10 @@ function main(){
     var pm = utils.multiplyMatrices(perspectiveMatrix, vw);
 
     gl.uniformMatrix4fv(cubeMatrixLoc, gl.FALSE, utils.transposeMatrix(pm));
+
+    gl.bindTexture(gl.TEXTURE_2D, texture[2]);
     gl.activeTexture(gl.TEXTURE0);
-    gl.uniform1i(cubeTexLoc, texture);
+    gl.uniform1i(cubeTexLoc, texture[2]);
 
     gl.bindVertexArray(vaos[2]);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
