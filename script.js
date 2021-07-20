@@ -372,7 +372,7 @@ function main(){
     // lightPos = [lightPos.x - l_offX, lightPos.y - l_offY, lightPos.z - l_offZ];
     
     var perspectiveMatrix = utils.MakePerspective(fovDeg, gl.canvas.width/gl.canvas.height, zNear, zFar);
-    var viewMatrix = utils.MakeView(cx, cy, cz, 0.0, 0.0);
+    var viewMatrix = utils.MakeView(cx, cy, cz, 0.0, angle);
 
     
     
@@ -549,6 +549,9 @@ window.addEventListener('keydown', (e) => {
   if(e.key == 's') cz += 1.00; //s
   if(e.key == 'a') angle -= 1.00;
   if(e.key == 'd') angle += 1.00;
+
+  if(cz > 20) cz=20;
+  if(cz < -20) cz = -20;
 });
  
  window.onload = init;
