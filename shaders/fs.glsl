@@ -13,12 +13,9 @@ uniform int specType;
 uniform vec4 specularColor;
 uniform float specShine;
 
+uniform int lightType;
 uniform vec3 lightDirection; //directional light vector
 uniform vec3 lightColor; //directional light color
-
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! to add !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-uniform int lightType;
 uniform vec3 lightPos;
 uniform float lightConeOut;
 uniform float lightConeIn;
@@ -37,7 +34,7 @@ void main() {
   vec3 cameraDir = normalize(cameraPos - fsPos);
 
   float DToonTh = 60.0;
-  float SToonTh = 45.0;
+  float SToonTh = 60.0;
 
   vec4 ambientContr = ambientLight;
 
@@ -104,7 +101,7 @@ void main() {
   }
 
 
-  //--------------------------------BETTER TOON 
+  //--------------------------------TOON 
   if(diffType == 3) {
     vec4 diffuseToon = max(sign(max(0.0, dot(nNormal, nLightDirection)) - cos(DToonTh * 3.14 / 180.0)), 0.5) * vec4(trueLC, 1.0) * texcol;
     diffTerm = diffuseToon;
@@ -115,23 +112,23 @@ void main() {
   vec4 specularTerm = vec4(0.0, 0.0, 0.0, 1.0);
   if(specType == 1){
     vec3 reflectDir = normalize(-reflect(nLightDirection, nNormal));
-    vec4 specularPhong = LScol * pow(clamp(dot(cameraDir, reflectDir), 0.0, 1.0), specShine);
+    vec4 specularPhong = LScol * vec4(trueLC, 1.0) * pow(clamp(dot(cameraDir, reflectDir), 0.0, 1.0), specShine);
     specularTerm = specularPhong;
   }
   //--------------------BLINN ------------------------------
   if(specType == 2) {
-    specularTerm = LScol * pow(max(dot(halfVec, nNormal), 0.0), specShine);
+    specularTerm = LScol * vec4(trueLC, 1.0) * pow(max(dot(halfVec, nNormal), 0.0), specShine);
   }
 
   if(specType == 3) {
   //-------------------- TOON PHONG -------------------------
-    vec4 specularToon = max(sign(max(0.0, dot(cameraDir, -reflect(nLightDirection, nNormal)) - cos(SToonTh * 3.14 / 180.0))), 0.5) * vec4(trueLC, 1.0) * LScol;
+    vec4 specularToon = max(sign(max(0.0, dot(cameraDir, -reflect(nLightDirection, nNormal)) - cos(SToonTh * 3.14 / 180.0))), 0.0) * vec4(trueLC, 1.0) * LScol;
     specularTerm = specularToon;
   }  
 
    if(specType == 4) {
   //-------------------- TOON BLINN -------------------------
-    vec4 specularToon = max(sign(max(0.0, dot(nNormal, normalize(nLightDirection + cameraDir)) - cos(SToonTh * 3.14 / 180.0))), 0.5) * vec4(trueLC, 1.0) * LScol;
+    vec4 specularToon = max(sign(max(0.0, dot(nNormal, normalize(nLightDirection + cameraDir)) - cos(SToonTh * 3.14 / 180.0))), 0.0) * vec4(trueLC, 1.0) * LScol;
     specularTerm = specularToon;
   }  
   
@@ -142,7 +139,7 @@ void main() {
     float wsX = pow(HdotT / alphaX, 2.0);
     float wsY = pow(HdotB / alphaY, 2.0);
     
-    vec4 specularWard = LScol * exp(-(wsX + wsY) / pow(HdotN, 2.0)) / (12.566 * alphaX * alphaY * sqrt(VdotN / LdotN));
+    vec4 specularWard = LScol * vec4(trueLC, 1.0) * exp(-(wsX + wsY) / pow(HdotN, 2.0)) / (12.566 * alphaX * alphaY * sqrt(VdotN / LdotN));
 
     specularTerm = specularWard;
   }
@@ -156,7 +153,7 @@ void main() {
 	  float HtoN2 = HdotN * HdotN;
 	  float D = exp(- (1.0-HtoN2) / (HtoN2 * M2)) / (3.14159 * M2 * HtoN2 * HtoN2);
 
-    specularTerm = LScol * (D * F * G) / (4.0 * min(VdotN, 1.0));
+    specularTerm = LScol * vec4(trueLC, 1.0) *  (D * F * G) / (4.0 * min(VdotN, 1.0));
   }
 
   vec4 finalColor = clamp(diffTerm + specularTerm + ambientContr, 0.0, 1.0);

@@ -51,11 +51,14 @@ var rvz = 0.0;
 
 //########### LIGHTS
 var lightType = 1;
+var l_offX = 0.0;
+var l_offY = 0.0;
+var l_offZ = 0.0;
 var lightPos = [0.0, 5.0, -10.0];
 var c_out = 60;
 var c_in = 45;
-var l_decay = 1;
-var l_target = 30;
+var l_decay = 2;
+var l_target = 10;
 var alpha = 0;
 var beta = 90;
 var dirLightAlpha = -utils.degToRad(alpha);
@@ -111,7 +114,6 @@ var texture = new Array();
 
 
 function main(){
-
   //set globalstates-> VBO & VAO -> function animate -> function drawScene();
   canw=canvas.clientWidth;
   canh=canvas.clientHeight;
@@ -197,7 +199,7 @@ function main(){
     lightDirectionLocation[m] = gl.getUniformLocation(programs[0], 'lightDirection');
     lightColorLocation[m] = gl.getUniformLocation(programs[0], 'lightColor');
 
-    lightTypeLocation[m] = gl.getUniformLocation(programs[0], 'lyghtType');
+    lightTypeLocation[m] = gl.getUniformLocation(programs[0], 'lightType');
     lightPosLocation[m] = gl.getUniformLocation(programs[0], 'lightPos');
     lightConeOutLocation[m] = gl.getUniformLocation(programs[0], 'lightConeOut');
     lightConeInLocation[m] = gl.getUniformLocation(programs[0], 'lightConeIn');
@@ -209,6 +211,8 @@ function main(){
     texLocation[m] = gl.getUniformLocation(programs[0], "u_texture");
 
   }
+
+  console.log(lightPos);
 
   var cubePosLoc = gl.getAttribLocation(programs[1], "a_position");
   var cubeUvLoc = gl.getAttribLocation(programs[1], "a_uv");
@@ -356,6 +360,16 @@ function main(){
         
     gl.clearColor(0.85, 0.85, 0.85, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    canw=canvas.clientWidth;
+    canh=canvas.clientHeight;
+    aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    //check what it does viewport --
+    gl.enable(gl.DEPTH_TEST);
+    utils.resizeCanvasToDisplaySize(gl.canvas);
+
+    // lightPos = [lightPos.x - l_offX, lightPos.y - l_offY, lightPos.z - l_offZ];
     
     var perspectiveMatrix = utils.MakePerspective(fovDeg, gl.canvas.width/gl.canvas.height, zNear, zFar);
     var viewMatrix = utils.MakeView(cx, cy, cz, 0.0, 0.0);
@@ -380,12 +394,12 @@ function main(){
       gl.uniform3fv(lightColorLocation[loc],  directionalLightColor);
       gl.uniform3fv(lightDirectionLocation[loc],  directionalLight);
 
-      gl.uniform1i(lightTypeLocation[m], lightType);
-      gl.uniform3fv(lightPosLocation[m], lightPos);
-      gl.uniform1f(lightConeInLocation[m], c_in);
-      gl.uniform1f(lightConeOutLocation[m], c_out);  
-      gl.uniform1f(lightDecayLocation[m], l_decay);  
-      gl.uniform1f(lightTargetLocation[m], l_target);
+      gl.uniform1i(lightTypeLocation[loc], lightType);
+      gl.uniform3fv(lightPosLocation[loc], lightPos);
+      gl.uniform1f(lightConeInLocation[loc], c_in);
+      gl.uniform1f(lightConeOutLocation[loc], c_out);  
+      gl.uniform1f(lightDecayLocation[loc], l_decay);  
+      gl.uniform1f(lightTargetLocation[loc], l_target);
 
 
       gl.uniform3fv(cameraPosLocation[loc], cameraPos);
@@ -394,9 +408,7 @@ function main(){
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, texture[loc]);
       gl.uniform1i(texLocation[loc], 0);
-      
-      console.log("3:" + texture[loc]);
-
+    
       gl.bindVertexArray(vaos[loc]);
       gl.drawElements(gl.TRIANGLES, objectIndices[loc].length, gl.UNSIGNED_SHORT, 0);
     }
@@ -415,6 +427,9 @@ function main(){
     gl.bindVertexArray(vaos[2]);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
     
+
+    
+
     window.requestAnimationFrame(drawScene);
    }
   
@@ -473,12 +488,27 @@ async function init() {
  function onSliderChange(value){
   specularShine = value;
 }
+function onSliderChange1(value){
+  lightPos[0] = 0 + parseInt(value) - 10;
+  console.log(lightPos)
+}
 
 function onSliderChange2(value){
+  lightPos[1] = 5 + parseInt(value) - 10;
+  console.log(lightPos)
+
+
+}function onSliderChange3(value){
+  lightPos[2] = -10 + parseInt(value) - 10;
+  console.log(lightPos)
+
+}
+
+function onSliderChange4(value){
   alpha = value;
 }
 
-function onSliderChange3(value){
+function onSliderChange5(value){
   beta = value;
 }
 
@@ -504,19 +534,21 @@ function onCheckBoxChange(value){
 
 function onDropdownChange(value){
   diffType = value;
-  console.log("Drop-down value changed to "+value);
 }
 
 function onDropdownChange1(value){
   specType = value;
-  console.log("Drop-down value changed to "+value);
 }
+
+function onDropdownChange2(value){
+  lightType = value;
+}
+
 window.addEventListener('keydown', (e) => {
   if(e.key == 'w') cz -= 1.00; //w
   if(e.key == 's') cz += 1.00; //s
   if(e.key == 'a') angle -= 1.00;
   if(e.key == 'd') angle += 1.00;
-  console.log(e.key);
 });
  
  window.onload = init;

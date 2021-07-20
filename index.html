@@ -19,9 +19,15 @@
 					<canvas id="my-canvas" width="800" height="600" style="background-color: white;">
 					Your browser does not support the HTML5 canvas element.
 					</canvas>					
-			</td>
-			<td style="background-color: whitesmoke; font-family: courier; padding: 5px;">
+				</td>
+			<td id = "menu" style="background-color: whitesmoke; font-family: courier; padding: 5px; width: 110px;">
 			<p><h2> GUI  </h2></p>
+			<p><b> Light Models:</b></p>
+            <select id="drop-down2" name="" onchange="onDropdownChange2(this.value);">
+                <option value="1" selected>Direct</option>
+                <option value="2">Point</option>
+				<option value="3">Spot</option>
+            </select>
 			<p><b> Diffuse Types:</b></p>
             <select id="drop-down" name="" onchange="onDropdownChange(this.value);">
                 <option value="1" selected>Lambert</option>
@@ -40,16 +46,31 @@
             </select>
 			<p><b> Specular Shine </b></p>
 			<div id="slider1"> 1
-				<input id="slide1" type="range" min="1" max="100" step="1" value="100" oninput="onSliderChange(this.value);"/> 100 <br/>
+				<input id="slide1" type="range" min="1" max="100" step="1" value="100" oninput="onSliderChange(this.value);"/> 10 <br/>
+			</div>
+
+			<p><b> Pos x </b></p>
+			<div id="slider2"> -10
+				<input id="slide2" type="range" min="0" max="20" step="1" value="10" oninput="onSliderChange1(this.value);"/> 10 <br/>
+			</div>
+
+			<p><b> Pos y </b></p>
+			<div id="slider3"> -10
+				<input id="slide3" type="range" min="0" max="20" step="1" value="10" oninput="onSliderChange2(this.value);"/> 10 <br/>
+			</div>
+
+			<p><b> Pos z </b></p>
+			<div id="slider4"> -10
+				<input id="slide4" type="range" min="0" max="20" step="1" value="10" oninput="onSliderChange3(this.value);"/> 10 <br/>
 			</div>
 
 			<p><b> Dir θ </b></p>
-			<div id="slider2">
-				<input id="slide2" type="range" min="0" max="360" step="1" value="0" oninput="onSliderChange2(this.value);"/> <br/>
+			<div id="slider5">
+				<input id="slide5" type="range" min="0" max="360" step="1" value="0" oninput="onSliderChange4(this.value);"/> <br/>
 			</div>
 			<p><b> Dir φ </b></p>
-			<div id="slider3">
-				<input id="slide3" type="range" min="0" max="360" step="1" value="90" oninput="onSliderChange3(this.value);"/> <br/>
+			<div id="slider6">
+				<input id="slide6" type="range" min="0" max="360" step="1" value="90" oninput="onSliderChange5(this.value);"/> <br/>
 			</div>
 		  <p><b> Specular Color</b></p>
 			<div id="LA14"><input type="color" id="LAlightColor" value="#FF0000" oninput="onColorChange(this.value);"></div> <br/>
