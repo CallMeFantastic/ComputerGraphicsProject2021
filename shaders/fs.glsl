@@ -58,16 +58,19 @@ void main() {
   vec3 trueLC = lightColor;
 
   if(lightType == 1) {
+    //---------------------------------------DIRECT
     nLightDirection = normalize(-lightDirection);
     trueLC = lightColor;
   }
 
   if(lightType == 2) {
+    //---------------------------------------POINT
     nLightDirection = normalize(lightPos - fsPos);
     trueLC = trueLC * pow(lightTarget / length(lightPos - fsPos), lightDecay);
   }
 
   if(lightType == 3) {
+    //---------------------------------------SPOT
     float LCosOut = cos(radians(lightConeOut / 2.0));
 	  float LCosIn = cos(radians(lightConeOut * lightConeIn / 2.0));
 

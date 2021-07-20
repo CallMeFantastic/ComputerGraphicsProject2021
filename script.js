@@ -57,8 +57,8 @@ var l_offZ = 0.0;
 var lightPos = [0.0, 5.0, -10.0];
 var c_out = 60;
 var c_in = 45;
-var l_decay = 2;
-var l_target = 10;
+var l_decay = 0;
+var l_target = 1;
 var alpha = 0;
 var beta = 90;
 var dirLightAlpha = -utils.degToRad(alpha);
@@ -484,6 +484,10 @@ async function init() {
  main();
 }
 
+function onRadioButtonChange(value){
+  l_decay = value;
+}
+
  //TODO: make it continuous
  function onSliderChange(value){
   specularShine = value;
@@ -510,6 +514,11 @@ function onSliderChange4(value){
 
 function onSliderChange5(value){
   beta = value;
+}
+
+function onSliderChangeL(value){
+  l_target = value;
+  console.log("target:" + l_target)
 }
 
 function onColorChange(value){
