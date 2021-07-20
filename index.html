@@ -44,6 +44,7 @@
                 <option value="6">Cook-Torrance</option>
 
             </select>
+			
 			<p><b> Specular Shine </b></p>
 			<div id="slider1"> 1
 				<input id="slide1" type="range" min="1" max="100" step="1" value="100" oninput="onSliderChange(this.value);"/> 10 <br/>
@@ -68,18 +69,19 @@
 			<div id="slider5">
 				<input id="slide5" type="range" min="0" max="360" step="1" value="0" oninput="onSliderChange4(this.value);"/> <br/>
 			</div>
+
 			<p><b> Dir φ </b></p>
 			<div id="slider6">
 				<input id="slide6" type="range" min="0" max="360" step="1" value="90" oninput="onSliderChange5(this.value);"/> <br/>
 			</div>
-		  <p><b> Specular Color</b></p>
+
+		  	<p><b> Specular Color</b></p>
 			<div id="LA14"><input type="color" id="LAlightColor" value="#FF0000" oninput="onColorChange(this.value);"></div> <br/>
 
 			<p><b> CheckBox  </b></p>
 				<input type="checkbox" id="chbx" onclick="onCheckBoxChange(this.checked);" checked/> Ambient Light<br/>
-          
 			</td>
-        </tr>
+        	</tr>
 		</table>
 	</body>
 </html>
