@@ -34,6 +34,8 @@ var zNear = 0.1;
 var zFar = 2000;
 var fovDeg = 30;
 
+var c_forward = [0.0, 0.0, -1.0];
+
 var canw, canh;
 var extView = 1;
 
@@ -554,13 +556,33 @@ function onDropdownChange2(value){
 }
 
 window.addEventListener('keydown', (e) => {
-  if(e.key == 'w') cz -= 1.00; //w
-  if(e.key == 's') cz += 1.00; //s
+  if(e.key == 'w'){
+    var temp = utils.multiplyMatrixVector(utils.MakeRotateYMatrix(angle), [c_forward[0], c_forward[1], c_forward[2], 1.0]);
+    
+    cx += temp[0];
+    cz += temp[2];
+  } 
+  if(e.key == 's'){
+    var temp = utils.multiplyMatrixVector(utils.MakeRotateYMatrix(angle), [c_forward[0], c_forward[1], c_forward[2], 1.0]);
+    
+    cx -= temp[0];
+    cz -= temp[2];
+  } 
   if(e.key == 'a') angle -= 1.00;
   if(e.key == 'd') angle += 1.00;
 
-  if(cz > 20) cz=20;
+  if(cz > 20) cz = 20;
   if(cz < -20) cz = -20;
+  if(cx > 20) cx = 20;
+  if(cx < -20) cx = -20;
 });
+
+function my_sumVec3(a, b){
+  let pipo = [];
+  for(i = 0; i < a.length; i++){
+    pipo[i] = a[i] + b[i];
+  }
+  return pipo;
+}
  
  window.onload = init;
