@@ -35,6 +35,7 @@ void main() {
 
   float DToonTh = 60.0;
   float SToonTh = 60.0;
+  SToonTh = clamp(cos(SToonTh * 3.14 / 180.0), 0.0, 1.0);
 
   vec4 ambientContr = ambientLight;
 
@@ -125,13 +126,13 @@ void main() {
 
   if(specType == 3) {
   //-------------------- TOON PHONG -------------------------
-    vec4 specularToon = max(sign(max(0.0, dot(cameraDir, -reflect(nLightDirection, nNormal)) - cos(SToonTh * 3.14 / 180.0))), 0.0) * vec4(trueLC, 1.0) * LScol;
+    vec4 specularToon = max(sign(max(0.0, dot(cameraDir, -reflect(nLightDirection, nNormal)) - SToonTh)), 0.0) * vec4(trueLC, 1.0) * LScol;
     specularTerm = specularToon;
   }  
 
    if(specType == 4) {
   //-------------------- TOON BLINN -------------------------
-    vec4 specularToon = max(sign(max(0.0, dot(nNormal, normalize(nLightDirection + cameraDir)) - cos(SToonTh * 3.14 / 180.0))), 0.0) * vec4(trueLC, 1.0) * LScol;
+    vec4 specularToon = max(sign(max(0.0, dot(halfVec, nNormal) - SToonTh)), 0.0) * vec4(trueLC, 1.0) * LScol;
     specularTerm = specularToon;
   }  
   
