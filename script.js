@@ -108,14 +108,12 @@ var texture = new Array();
 
 
 function main(){
-  //set globalstates-> VBO & VAO -> function animate -> function drawScene();
   canw=canvas.clientWidth;
   canh=canvas.clientHeight;
   aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
   
   //SET Global states (viewport size, viewport background color, Depth test)
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-  //check what it does viewport --
   gl.clearColor(0.85, 0.85, 0.85, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
@@ -171,15 +169,11 @@ function main(){
   objectTexCoords[1] = pedestalModel.textures;
 
 
-  //creare buffer, dire il tipo, feedarlo, (a_position fatta) 
-  //moltiplicazione di matrici, creazione buffer uniform, inserire dati , GetUniformLocation (matrix)
   for(m = 0; m < models3DCount; m++) {
-    //for each program
     positionAttributeLocation[m] = gl.getAttribLocation(programs[0], "a_position");
     normalAttributeLocation[m] = gl.getAttribLocation(programs[0],"inNormal");
     uvAttributeLocation[m] = gl.getAttribLocation(programs[0], "a_uv");
 
-    //diffType (uniform int) e uniform vec3 cameraPos
     matrixLocation[m] = gl.getUniformLocation(programs[0],"matrix");
     normalMatrixLocation[m] = gl.getUniformLocation(programs[0],"nMatrix");
     worldMatrixLocation[m] = gl.getUniformLocation(programs[0], "worldMatrix");
@@ -240,7 +234,6 @@ function main(){
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objectIndices[loc]), gl.STATIC_DRAW);
 
-    //boat params locations in first half of Location arrays - object<Param>[0]
     if(loc < positionAttributeLocation.length / 2){
       texture[0] = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture[0]);
@@ -257,7 +250,6 @@ function main(){
       }
     }
    
-    //pedestal params locations in second half of Location arrays - object<Param>[1]
     else { 
       texture[1] = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture[1]);
@@ -356,11 +348,8 @@ function main(){
     canh=canvas.clientHeight;
     aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    //check what it does viewport --
     gl.enable(gl.DEPTH_TEST);
     utils.resizeCanvasToDisplaySize(gl.canvas);
-
-    // lightPos = [lightPos.x - l_offX, lightPos.y - l_offY, lightPos.z - l_offZ];
     
     var perspectiveMatrix = utils.MakePerspective(fovDeg, gl.canvas.width/gl.canvas.height, zNear, zFar);
     var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
