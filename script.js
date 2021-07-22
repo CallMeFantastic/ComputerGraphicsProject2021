@@ -575,6 +575,8 @@ window.addEventListener('keydown', (e) => {
   if(cz < -20) cz = -20;
   if(cx > 20) cx = 20;
   if(cx < -20) cx = -20;
+  if(cy > 20) cy = 20;
+  if(cy < -20) cy = -20;
 });
 
 function my_sumVec3(a, b){
