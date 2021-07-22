@@ -27,7 +27,6 @@ var cy = 0.0;
 var cz = 20.0;
 var elevation = 0.0;
 var angle = 0.0;
-var w, h;
 var cameraPos = [cx, cy, cz];
 var aspect;
 var zNear = 0.1;
@@ -35,16 +34,9 @@ var zFar = 2000;
 var fovDeg = 30;
 
 var c_forward = [0.0, 0.0, -1.0];
+var c_right = [1.0, 0.0, 0.0];
 
 var canw, canh;
-var extView = 1;
-
-var roll = 0.01;
-var modRot = 0.0;
-var EVelevation = -15;
-var EVangle = 30;
-
-var lookRadius = 10.0;
 
 var keys = [];
 var rvx = 0.0;
@@ -213,9 +205,6 @@ function main(){
     texLocation[m] = gl.getUniformLocation(programs[0], "u_texture");
 
   }
-
-  console.log(lightPos);
-
   var cubePosLoc = gl.getAttribLocation(programs[1], "a_position");
   var cubeUvLoc = gl.getAttribLocation(programs[1], "a_uv");
 
@@ -374,7 +363,7 @@ function main(){
     // lightPos = [lightPos.x - l_offX, lightPos.y - l_offY, lightPos.z - l_offZ];
     
     var perspectiveMatrix = utils.MakePerspective(fovDeg, gl.canvas.width/gl.canvas.height, zNear, zFar);
-    var viewMatrix = utils.MakeView(cx, cy, cz, 0.0, angle);
+    var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
 
     
     
@@ -431,8 +420,9 @@ function main(){
     
 
     
-
-    window.requestAnimationFrame(drawScene);
+    if(!document.hidden){
+      window.requestAnimationFrame(drawScene);
+    }
    }
   
 }
@@ -496,18 +486,14 @@ function onRadioButtonChange(value){
 }
 function onSliderChange1(value){
   lightPos[0] = 0 + parseInt(value) - 10;
-  console.log(lightPos)
 }
 
 function onSliderChange2(value){
   lightPos[1] = 5 + parseInt(value) - 10;
-  console.log(lightPos)
+}
 
-
-}function onSliderChange3(value){
+function onSliderChange3(value){
   lightPos[2] = -10 + parseInt(value) - 10;
-  console.log(lightPos)
-
 }
 
 function onSliderChange4(value){
@@ -520,7 +506,6 @@ function onSliderChange5(value){
 
 function onSliderChangeL(value){
   l_target = value;
-  console.log("target:" + l_target)
 }
 
 function onColorChange(value){
@@ -568,8 +553,28 @@ window.addEventListener('keydown', (e) => {
     cx -= temp[0];
     cz -= temp[2];
   } 
-  if(e.key == 'a') angle -= 1.00;
-  if(e.key == 'd') angle += 1.00;
+  if(e.key == 'a'){
+    var temp = utils.multiplyMatrixVector(utils.MakeRotateYMatrix(angle), [c_right[0], c_right[1], c_right[2], 1.0]);
+    
+    cx -= temp[0];
+    cz -= temp[2];
+  } 
+  if(e.key == 'd') {
+    var temp = utils.multiplyMatrixVector(utils.MakeRotateYMatrix(angle), [c_right[0], c_right[1], c_right[2], 1.0]);
+    
+    cx += temp[0];
+    cz += temp[2];
+  } 
+
+  if(e.key == 'q') cy -= 1.00;
+  if(e.key == 'e') cy += 1.00;  
+
+  if(e.key == 'j') angle -= 1.00;
+  if(e.key == 'l') angle += 1.00;
+  if(e.key == 'k') elevation -= 1.00;
+  if(e.key == 'i') elevation += 1.00;
+
+
 
   if(cz > 20) cz = 20;
   if(cz < -20) cz = -20;
